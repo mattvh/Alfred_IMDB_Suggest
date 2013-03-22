@@ -1,7 +1,7 @@
 IMDB Search Suggest for Alfred
 =====================================
 
-[Download](https://github.com/redwallhp/Alfred_IMDB_Suggest/blob/master/IMDB%20Suggest.alfredworkflow?raw=true)
+[Download](https://github.com/redwallhp/Alfred_IMDB_Suggest/blob/master/IMDB_Suggest.alfredworkflow?raw=true)
 
 ### Version 1.0.0
 
