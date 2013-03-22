@@ -1,5 +1,8 @@
 IMDB Search Suggest for Alfred
 =====================================
+
+[Download](https://github.com/redwallhp/Alfred_IMDB_Suggest/blob/master/IMDB%20Suggest.alfredworkflow?raw=true)
+
 ### Version 1.0.0
 
 This [Alfred](http://www.alfredapp.com/) extension runs on the "imdb" keyword. It queries the Internet Movie Database as you type and returns results that let you jump directly to the corresponding pages.
