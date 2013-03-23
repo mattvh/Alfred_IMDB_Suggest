@@ -45,7 +45,7 @@ $wf = new Workflows();
 $q = "{query}";
 
 
-//Get JSONP data from Amazon
+//Get JSONP data
 $term = trim(strtolower($q));
 $search = str_replace(array(" ", "(", ")"), array("_", "", ""), $term);
 $firstchar = substr($search,0,1);
@@ -55,12 +55,29 @@ $jsonp = $wf-&gt;request($url);
 
 //Convert to JSON and decode
 preg_match('/^imdb\$.*?\((.*?)\)$/ms', $jsonp, $matches);
+	
 if (!$matches) {
-	$url = "http://www.imdb.com/find?s=all&amp;q=".urlencode($q);
-	$wf-&gt;result('alfredimdbsuggest.', $url, 'Search IMDB for '.$q, 'No search suggestions found. Search IMDB for '.$q, 'icon.png');
-	echo $wf-&gt;toxml();
-	exit();
+
+	$readcache = $wf-&gt;read('cache.txt');
+		
+	if (!$readcache || $readcache == "") {
+	
+		$url = "http://www.imdb.com/find?s=all&amp;q=".urlencode($q);
+		$wf-&gt;result('alfredimdbsuggest.', $url, 'Search IMDB for \''.$q.'\'', 'No search suggestions found.', 'icon.png');
+		echo $wf-&gt;toxml();
+		exit();
+		
+	} else {
+		
+		$data = unserialize($readcache);
+		$url = "http://www.imdb.com/find?s=all&amp;q=".urlencode($q);
+		$data-&gt;result('alfredimdbsuggest.99.search', $url, 'Search IMDB for "{query}"', 'See all results for "{query}"', 'icon.png');
+		echo $data-&gt;toxml();
+		exit();
+		
+	}
 }
+
 $json = $matches[1];
 $arr = json_decode($json, true);
 $data = $arr['d'];
@@ -68,15 +85,27 @@ $data = $arr['d'];
 
 //Output results
 $count = 1;
+
 foreach ($data as $item) {
 	if (substr($item['id'], 0, 2) === 'nm') {
 		$url = "http://www.imdb.com/name/".$item['id']."/";
+		$wf-&gt;result('alfredimdbsuggest.'.$count.'.'.time(), $url, $item['l'], $item['s'], 'icon.png');
+	} elseif ($item['y'] == '' || $item['s'] == '') {
+		$url = "http://www.imdb.com/title/".$item['id']."/";
+		$wf-&gt;result('alfredimdbsuggest.'.$count.'.'.time(), $url, $item['l'], '', 'icon.png');
 	} else {
 		$url = "http://www.imdb.com/title/".$item['id']."/";
+		$q = str_ireplace('feature', 'movie', $item['q']);
+		$wf-&gt;result('alfredimdbsuggest.'.$count.'.'.time(), $url, $item['l'] . ' (' . $item['y'] . ')', ucfirst($q) . ' starring '.$item['s'], 'icon.png');
 	}
-	$wf-&gt;result('alfredimdbsuggest.'.$count.'.'.time(), $url, $item['l'], 'Search IMDB for '.$item['l'], 'icon.png');
 	$count++;
 }
+
+$wf-&gt;write(serialize($wf), 'cache.txt');
+
+$url = "http://www.imdb.com/find?s=all&amp;q=".urlencode($q);
+$wf-&gt;result('alfredimdbsuggest.99.search', $url, 'Search IMDB for "{query}"', 'See all results for "{query}"', 'icon.png');
+
 echo $wf-&gt;toxml();</string>
 				<key>subtext</key>
 				<string>Find a movie or person on IMDB</string>
